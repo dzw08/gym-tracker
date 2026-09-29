@@ -1,7 +1,8 @@
 # AGENTS.md
 
-Single-package Dart repo, `main` only, remote `github.com/dzw08/gym-tracker`. No
-workspace, no path deps, no CI, no pre-commit hooks, no codegen.
+Single-package **Flutter** repo, `main` only, remote
+`github.com/dzw08/gym-tracker`. No workspace, no path deps, no CI, no pre-commit
+hooks, no codegen.
 
 ## This is A-Level coursework (OCR)
 
@@ -42,51 +43,85 @@ modularisation, comments, indentation, and honest limitations/future
 development are all assessment points. Keep the code clean and the scope
 realistic; overscoping is penalised under limitations.
 
-## Intended product: Flutter mobile app
+## It is a Flutter app now
 
-The target is a **Flutter mobile app**, but the repo is still a stock
-`dart create` console scaffold. Verified current state:
+`flutter create .` has been run and the result is **staged but not committed** —
+`git status` shows the whole migration as `A`/`M`/`D` against a still-pure-Dart
+history. Don't re-run `flutter create`; check what already exists first.
 
-- `pubspec.yaml` has `dependencies: path` only — **no `flutter` dep**, no
-  `flutter:` section. Same for `pubspec.lock`.
-- No `android/`, `ios/`, `web/`, or any Flutter platform dir exists.
-- Only real code is `lib/gym_tracker.dart` (`calculate() -> 42`),
-  `bin/gym_tracker.dart` (console entrypoint), and
-  `test/gym_tracker_test.dart` (placeholder assertion).
+Verified current state:
 
-Don't assume any of the migration has happened. Converting to Flutter means
-`flutter create .` for the platform dirs, moving code into `lib/`, dropping the
-`bin/` console entrypoint, and switching to `flutter test` / `flutter analyze`.
+- `pubspec.yaml` is a Flutter package: `flutter` + `flutter_test` sdk deps,
+  `flutter_lints: ^6.0.0`, `sdk: ^3.13.4`, and a `flutter:` section with
+  `uses-material-design: true`. The `path` dep is gone.
+- Platform dirs exist and are staged: `android/`, `ios/`, `linux/`, `macos/`,
+  `web/`, `windows/`. All generated boilerplate — don't mine them for design
+  intent, and don't hand-edit them outside `flutter create` / `flutter build`.
+- `bin/gym_tracker.dart`, `lib/gym_tracker.dart` and
+  `test/gym_tracker_test.dart` are deleted. The `bin/` console entrypoint is
+  gone for good.
+- `lib/main.dart` is 16 lines: `main()` → `MainApp`, a `StatelessWidget`
+  returning a `MaterialApp` with a centred "Hello World!". Still a placeholder,
+  not app code.
+- **There is no `test/` directory at all.** `flutter test` exits 1 with
+  `Test directory "test" not found.`, and `dart test` fails outright because
+  `package:test` is no longer a dev dependency. This is the first thing to fix —
+  the write-up's test tables are unbacked without it.
+
+`README.md` and `CHANGELOG.md` are still the stock `dart create` text describing
+a `bin/` entrypoint. Update or delete them rather than leaving them misleading.
 
 ## Toolchain quirk
 
 `dart` **and** `flutter` both resolve to the Flutter SDK bundle on PATH
 (`/home/dani/develop/flutter/bin/`, Flutter 3.47.5 / Dart 3.13.4). There is no
-standalone Dart SDK installed. `pubspec.yaml` requires `sdk: ^3.12.2`; the
-bundled Dart 3.13.4 satisfies it. A Flutter SDK being present does **not** make
-this a Flutter package — check `pubspec.yaml`, not PATH.
+standalone Dart SDK installed and no separate system Flutter to fall back on.
+`pubspec.lock` now pins `dart: >=3.13.4 <4.0.0` and
+`flutter: >=3.18.0-18.0.pre.54`.
+
+**No Android SDK and no Chrome are installed** — `flutter doctor` fails both the
+Android toolchain and the Chrome category. `flutter devices` reports exactly one
+target: Linux desktop, under WSL2. That matters, because the write-up wants
+working mobile screenshots; desktop-only means the mobile evidence has to come
+from somewhere else (install the Android SDK, or run on a physical phone over
+`adb`). Don't claim a mobile screenshot you can't actually take.
 
 ## Commands
 
-Verified working as of the scaffold state:
+Verified working:
 
-- `dart pub get`
-- `dart run bin/gym_tracker.dart`
-- `dart test` — run a single test with `dart test test/gym_tracker_test.dart -n '<name>'`
-- `dart analyze`
+- `flutter pub get`
+- `flutter analyze` — currently clean
 - `dart format .` — nothing enforces formatting, so run it before finishing
+- `flutter build linux` — builds clean (~1 min cold) to
+  `build/linux/x64/release/bundle/gym_tracker`
+- `flutter run -d linux` — the only runnable target today
+- `flutter devices` / `flutter doctor` — re-check the above before assuming any
+  target exists
 
-Once the package is actually Flutter, use `flutter test` / `flutter analyze` /
-`flutter run` instead; `dart test` will not see widget tests.
+`flutter test` currently **fails** for want of a `test/` directory. Once tests
+exist, filter one with
+`flutter test test/<file>_test.dart --plain-name '<name>'`. `dart test` and
+`dart run bin/gym_tracker.dart` no longer apply.
 
 ## Conventions
 
-- `analysis_options.yaml` includes `package:lints/recommended.yaml`; every
-  additional rule is commented out. New files are expected to be `dart format`
-  clean and lint-free.
-- `pubspec.lock` is committed. Only `.dart_tool/` is gitignored.
-- Commit history is three `Initial commit` messages on `main`; no message
-  convention has been established yet.
+- `analysis_options.yaml` includes `package:flutter_lints/flutter.yaml` (not
+  the old `package:lints/recommended.yaml`) and excludes the platform dirs from
+  analysis, which is part of why `flutter analyze` passes over them. New files
+  are expected to be `dart format` clean and lint-free.
+- `.gitignore` is the stock Flutter one plus a hand-added tail: `/project`,
+  `*.PNG`, `*.odt`, `*.txt`. The `project/` brief and mockups are deliberately
+  untracked, but the five `project/IMG_*.PNG` files and `project/todo.txt` were
+  committed *before* that rule and are still tracked — `.gitignore` doesn't
+  untrack anything. Note `*.txt` is broad: any new `.txt` anywhere in the repo
+  is silently ignored.
+- `pubspec.lock` is committed; `.dart_tool/`, `build/`, `.idea/` and `*.iml`
+  are not.
+- Commit history is still three `Initial commit` messages on `main`, and the
+  whole Flutter migration is sitting staged and uncommitted. No message
+  convention has been established yet. Given the brief treats git history as
+  evidence, commit the migration before starting on features.
 
 ## `project/`
 
@@ -101,7 +136,13 @@ Once the package is actually Flutter, use `flutter test` / `flutter analyze` /
   behavior. Read the relevant PNG before building a screen.
 - `todo.txt` — empty.
 
+The whole dir is now gitignored (`/project`, plus `*.PNG` / `*.odt` / `*.txt`),
+so none of this belongs in a commit — except that the five `IMG_*.PNG` and
+`todo.txt` were already tracked and stayed that way.
+
 **Never commit `NEA Write-Up.odt:Zone.Identifier`.** It is a Windows/OneDrive
 download artifact (NTFS alternate data stream) holding internal SharePoint
-URLs and a username. It is junk; safe to delete. Watch for the same artifact
-reappearing on any file copied in from Windows.
+URLs and a username. It is junk; safe to delete. The `*.odt` ignore rule now
+covers it by luck, but watch for the same artifact on any file copied in from
+Windows — e.g. an `AGENTS.md:Zone.Identifier` would be untracked and easy to
+`git add .` by accident.
