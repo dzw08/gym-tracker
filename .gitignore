@@ -46,4 +46,6 @@ app.*.map.json
 /project
 *.PNG
 *.odt
-*.txt
+todo.md
+AGENTS.md
+info.md

@@ -54,9 +54,14 @@ Verified current state:
 - `pubspec.yaml` is a Flutter package: `flutter` + `flutter_test` sdk deps,
   `flutter_lints: ^6.0.0`, `sdk: ^3.13.4`, and a `flutter:` section with
   `uses-material-design: true`. The `path` dep is gone.
-- Platform dirs exist and are staged: `android/`, `ios/`, `linux/`, `macos/`,
-  `web/`, `windows/`. All generated boilerplate — don't mine them for design
-  intent, and don't hand-edit them outside `flutter create` / `flutter build`.
+- Platform dirs exist and are staged: `ios/`, `linux/`, `web/`. All generated
+  boilerplate — don't mine them for design intent, and don't hand-edit them
+  outside `flutter create` / `flutter build`.
+- `android/`, `macos/` and `windows/` were **deliberately deleted** (staged as
+  `D`, not yet committed). iOS is the intended deployment target, `linux/` is
+  the only target that can actually be run here, `web/` was left because it
+  costs nothing. Don't regenerate the deleted ones with a bare `flutter create .`
+  — if a platform needs adding back, add that one platform on purpose.
 - `bin/gym_tracker.dart`, `lib/gym_tracker.dart` and
   `test/gym_tracker_test.dart` are deleted. The `bin/` console entrypoint is
   gone for good.
@@ -83,8 +88,29 @@ standalone Dart SDK installed and no separate system Flutter to fall back on.
 Android toolchain and the Chrome category. `flutter devices` reports exactly one
 target: Linux desktop, under WSL2. That matters, because the write-up wants
 working mobile screenshots; desktop-only means the mobile evidence has to come
-from somewhere else (install the Android SDK, or run on a physical phone over
-`adb`). Don't claim a mobile screenshot you can't actually take.
+from somewhere else. Don't claim a mobile screenshot you can't actually take.
+
+### iOS cannot be built or run on this machine at all
+
+Flutter's iOS toolchain requires **macOS + Xcode**, and there is no way around
+it: no remote or emulated path exists, unlike Android. Verified here — no
+`xcodebuild`, no `xcrun`, no CocoaPods `pod`, and `flutter doctor` doesn't even
+print an Xcode category (it only appears on macOS hosts). WSL2 and `/mnt/c`
+give access to Windows files, not to Apple's build tools.
+
+Consequences:
+
+- The `ios/` directory is a **source-of-truth artifact and the deployment
+  target**, but it is unbuildable and unverifiable from this environment. Commit
+  it; never hand-edit it beyond what `flutter create` / a real Mac produces.
+- The write-up needs iOS-looking screenshots. They have to come from a real Mac
+  (borrow one, use a college/shared lab machine, or a paid cloud Mac). Don't
+  dress up a Linux desktop screenshot as a phone screenshot — the write-up
+  explicitly asks for honesty about what was and wasn't achieved.
+- Everything that *can* be verified without a Mac is: `flutter analyze`,
+  `flutter test`, `dart format`, and a Linux desktop build. Widget tests are
+  where most of the write-up's test-table evidence should come from, since they
+  run anywhere.
 
 ## Commands
 
@@ -97,7 +123,12 @@ Verified working:
   `build/linux/x64/release/bundle/gym_tracker`
 - `flutter run -d linux` — the only runnable target today
 - `flutter devices` / `flutter doctor` — re-check the above before assuming any
-  target exists
+  target exists. `flutter doctor` lists no Xcode category here, which is the
+  quickest confirmation that iOS is unavailable.
+
+iOS commands exist but all require a Mac: `flutter build ios`,
+`flutter build ipa`, `flutter run -d <ios-device>`, `pod install` (CocoaPods,
+driven automatically by Flutter). None of them work on this host.
 
 `flutter test` currently **fails** for want of a `test/` directory. Once tests
 exist, filter one with
@@ -108,8 +139,11 @@ exist, filter one with
 
 - `analysis_options.yaml` includes `package:flutter_lints/flutter.yaml` (not
   the old `package:lints/recommended.yaml`) and excludes the platform dirs from
-  analysis, which is part of why `flutter analyze` passes over them. New files
-  are expected to be `dart format` clean and lint-free.
+  analysis (`build/**`, `ios/**`, `web/**`, `linux/**`), which is part of why
+  `flutter analyze` passes over them. New files are expected to be `dart format`
+  clean and lint-free. Keep the exclude list in step with the dirs that exist —
+  it currently no longer mentions `android/**`/`macos/**`/`windows/**` because
+  those are gone.
 - `.gitignore` is the stock Flutter one plus a hand-added tail: `/project`,
   `*.PNG`, `*.odt`, `*.txt`. The `project/` brief and mockups are deliberately
   untracked, but the five `project/IMG_*.PNG` files and `project/todo.txt` were
