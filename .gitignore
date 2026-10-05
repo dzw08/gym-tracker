@@ -46,3 +46,4 @@ app.*.map.json
 /project
 AGENTS.md
 backup_gym_tracker.py
+i.txt
