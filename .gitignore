@@ -45,3 +45,4 @@ app.*.map.json
 # Project-related
 /project
 AGENTS.md
+backup_gym_tracker.py
