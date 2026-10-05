@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 
 import '/theme/app_theme.dart';
-import '/screens/home_screen.dart';
 import '/screens/login_screen.dart';
 
-void main() {
+Future<void> main() async {
+  await Supabase.initialize(
+    url: 'https://nynoruetxntaysxpwpxa.supabase.co',
+    publishableKey: 'sb_publishable_5Tjc0MYT-TMakmmWMRxo7w_jlQuJKQG',
+  );
   runApp(const MainWidget());
 }
 
@@ -22,7 +25,7 @@ class _MainWidgetState extends State<MainWidget> {
       title: 'Gym Tracker',
       theme: AppTheme.light,
       home: LoginScreen(),
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: true,
     );
   }
 }

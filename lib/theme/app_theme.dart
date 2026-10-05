@@ -22,6 +22,7 @@ class AppTheme {
           surface: Palette.bg,
           onSurface: Palette.text,
           surfaceContainer: Palette.bgDark,
+          tertiary: Palette.accentDark,
         );
     return ThemeData(
       useMaterial3: true,
