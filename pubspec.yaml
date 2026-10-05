@@ -26,3 +26,8 @@ flutter:
         - asset: assets/fonts/PlusJakartaSans-Variable.ttf
         - asset: assets/fonts/PlusJakartaSans-Italic-Variable.ttf
           style: italic
+
+    - family: Fraunces
+      fonts:
+          # font weight, wonky adjusted with fontVariation
+        - asset: assets/fonts/Fraunces-Variable.ttf
