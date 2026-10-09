@@ -45,33 +45,44 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text;
     final supabase = Supabase.instance.client;
 
-    try {
-      final row = await supabase
-          .from('users')
-          .select('id, username')
-          .eq('username', username)
-          .eq('password', password)
-          .maybeSingle();
+    // For testing, and to avoid the Supabase
+    if (username == "test" && password == "test") {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => const HomeScreen(),
+        ),
+      );
+    } // else clause part of testing credential
+    else {
+      try {
+        final row = await supabase
+            .from('users')
+            .select('id, username')
+            .eq('username', username)
+            .eq('password', password)
+            .maybeSingle();
 
-      if (row != null) {
-        // Login succeed.
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => const HomeScreen(),
-          ),
-        );
-      } else if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Invalid credentials.')));
-        setState(() => errorMessage = 'Invalid credentials!');
-      }
-    } on PostgrestException catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.message)));
-        setState(() => errorMessage = e.message);
+        if (row != null) {
+          // Login succeed.
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (BuildContext context) => const HomeScreen(),
+            ),
+          );
+        } else if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Invalid credentials.')));
+          setState(() => errorMessage = 'Invalid credentials!');
+        }
+      } on PostgrestException catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(SnackBar(content: Text(e.message)));
+          setState(() => errorMessage = e.message);
+        }
       }
     }
   }
