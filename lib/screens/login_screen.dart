@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gym_tracker/widgets/username_field.dart';
-import 'package:gym_tracker/widgets/password_field.dart';
 import 'package:gym_tracker/screens/home_screen.dart';
+import 'package:gym_tracker/widgets/password_field.dart';
+import 'package:gym_tracker/widgets/username_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 export 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -15,6 +16,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _isLoading = false;
   String errorMessage = '';
 
   @override
@@ -53,8 +55,11 @@ class _LoginScreenState extends State<LoginScreen> {
           builder: (BuildContext context) => const HomeScreen(),
         ),
       );
-    } // else clause part of testing credential
-    else {
+    } else if (username.isEmpty || password.isEmpty) {
+      return;
+    } else {
+      if (_isLoading) return;
+      setState(() => _isLoading = true);
       try {
         final row = await supabase
             .from('users')
@@ -62,7 +67,7 @@ class _LoginScreenState extends State<LoginScreen> {
             .eq('username', username)
             .eq('password', password)
             .maybeSingle();
-
+        if (!mounted) return;
         if (row != null) {
           // Login succeed.
           Navigator.pushReplacement(
@@ -83,6 +88,8 @@ class _LoginScreenState extends State<LoginScreen> {
               .showSnackBar(SnackBar(content: Text(e.message)));
           setState(() => errorMessage = e.message);
         }
+      } finally {
+        if (mounted) setState(() => _isLoading = false);
       }
     }
   }
@@ -138,8 +145,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.only(left: 50, right: 50),
                   child: FilledButton(
-                    onPressed: _submitLogin,
-                    child: Text('Log in'),
+                    onPressed: _isLoading ? null : _submitLogin,
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text('Log in'),
                   ),
                 ),
               ]),

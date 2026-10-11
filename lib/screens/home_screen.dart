@@ -31,7 +31,7 @@ class _HomeScreenState extends State<HomeScreen> {
   ];
 
   void _startEmptyWorkout() {
-    //TODO: navigate to the workout screen.
+    //TODO: navigate to the active workout screen.
   }
   @override
   Widget build(BuildContext context) {
