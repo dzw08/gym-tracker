@@ -10,10 +10,52 @@ class WorkoutsScreen extends StatelessWidget {
     return CustomScrollView(
       slivers: <Widget>[
         SliverToBoxAdapter(
-          child: ListTile(
-            title: Text(
-              'My templates',
-              style: Theme.of(context).textTheme.headlineMedium,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ListTile(
+                    title: Text(
+                      'Templates',
+                      style: TextStyle(
+                        fontSize: 34,
+                        fontFamily: 'PlusJakartaSans',
+                        fontVariations: [FontVariation('wght', 700)],
+                        color: Theme.of(context).colorScheme.tertiary,
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 15),
+                  child: FilledButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStateColor.fromMap({
+                        WidgetState.any: Theme.of(context)
+                            .colorScheme
+                            .secondary,
+                      }),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.add,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        Text(
+                          "Template",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurface,
+                            fontVariations: [FontVariation("wght", 600)],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -26,7 +68,7 @@ class WorkoutsScreen extends StatelessWidget {
         SliverToBoxAdapter(
           child: ListTile(
             title: Text(
-              'Example templates',
+              'My templates ($itemCount)',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),

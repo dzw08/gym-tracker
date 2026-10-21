@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'palette.dart';
+
 export 'palette.dart';
 
 class AppTheme {
@@ -63,9 +64,15 @@ class AppTheme {
       textTheme: const TextTheme(
         headlineLarge: TextStyle(
           fontFamily: bodyFont,
-          fontSize: 40,
+          fontSize: 38,
           color: Palette.text,
-          fontVariations: [FontVariation('wght', 700)],
+          fontVariations: [FontVariation('wght', 750)],
+        ),
+        headlineSmall: TextStyle(
+          fontFamily: bodyFont,
+          fontSize: 18,
+          color: Palette.accentDarkest,
+          fontVariations: [FontVariation('wght', 600)],
         ),
       ),
     );
