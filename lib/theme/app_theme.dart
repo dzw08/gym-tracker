@@ -31,7 +31,10 @@ class AppTheme {
       colorScheme: scheme,
       scaffoldBackgroundColor: Palette.bg,
 
-      appBarTheme: AppBarThemeData(backgroundColor: scheme.surface),
+      appBarTheme: AppBarThemeData(
+        backgroundColor: scheme.surface,
+        surfaceTintColor: scheme.surface,
+      ),
 
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
         backgroundColor: Palette.accent,

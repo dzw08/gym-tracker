@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-
-import 'workouts_screen.dart';
+import 'package:gym_tracker/screens/account_screen.dart';
+import 'package:gym_tracker/screens/exercises_screen.dart';
+import 'package:gym_tracker/screens/workouts_screen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const new({super.key});
+  const new({super.key, required this.username});
+
+  final String username;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -14,34 +17,34 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final _appBarPadding = const EdgeInsets.only(top: 15);
 
-  static const _pageTitles = [
-    'Account',
-    'History',
-    'Workouts',
-    'Exercises',
-    'Trends',
-  ];
-
-  final List<Widget> _pages = [
-    Placeholder(), //eventually account page
-    Placeholder(), //eventually the history page
-    WorkoutsScreen(), //new workout (i.e. home screen)
-    Placeholder(), //exercises
-    Placeholder(), //trends/graphs
-  ];
-
   void _startEmptyWorkout() {
     //TODO: navigate to the active workout screen.
   }
   @override
   Widget build(BuildContext context) {
+    final List<String> pageTitles = [
+      'Account',
+      'History',
+      'Workouts',
+      'Exercises',
+      'Trends',
+    ];
+    final List<Widget> pages = [
+      AccountScreen(
+        username: widget.username,
+      ), //information about logged in user
+      Placeholder(), //eventually the history page
+      WorkoutsScreen(), //new workout (i.e. home screen)
+      ExercisesScreen(), //exercises
+      Placeholder(), //trends/graphs
+    ];
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 80,
         title: Padding(
           padding: _appBarPadding,
           child: Text(
-            _pageTitles[_selectedIndex],
+            pageTitles[_selectedIndex],
             style: Theme.of(context).textTheme.headlineLarge,
           ),
         ),
@@ -57,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ]
             : null,
       ),
-      body: IndexedStack(index: _selectedIndex, children: _pages),
+      body: IndexedStack(index: _selectedIndex, children: pages),
       floatingActionButton: _selectedIndex == 2
           ? Padding(
               padding: const EdgeInsets.only(bottom: 6, right: 6),

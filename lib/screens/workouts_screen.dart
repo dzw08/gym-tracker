@@ -60,7 +60,7 @@ class WorkoutsScreen extends StatelessWidget {
           ),
         ),
         SliverList.builder(
-          itemCount: 0, // TODO: replace with an actual count
+          itemCount: 0, //TODO: replace with an actual count
           itemBuilder: (BuildContext context, int index) {
             return Placeholder();
           },

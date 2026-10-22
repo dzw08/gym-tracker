@@ -47,12 +47,12 @@ class _LoginScreenState extends State<LoginScreen> {
     final password = _passwordController.text;
     final supabase = Supabase.instance.client;
 
-    // For testing, and to avoid the Supabase
+    //For testing, and to avoid the Supabase
     if (username == "test" && password == "test") {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (BuildContext context) => const HomeScreen(),
+          builder: (BuildContext context) => HomeScreen(username: username),
         ),
       );
     } else if (username.isEmpty || password.isEmpty) {
@@ -69,11 +69,11 @@ class _LoginScreenState extends State<LoginScreen> {
             .maybeSingle();
         if (!mounted) return;
         if (row != null) {
-          // Login succeed.
+          //Login succeed.
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder: (BuildContext context) => const HomeScreen(),
+              builder: (BuildContext context) => HomeScreen(username: username),
             ),
           );
         } else if (mounted) {
