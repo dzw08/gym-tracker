@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '/theme/app_theme.dart';
 import '/screens/login_screen.dart';
+import '/theme/app_theme.dart';
 
 Future<void> main() async {
   await Supabase.initialize(
@@ -25,7 +25,7 @@ class _MainWidgetState extends State<MainWidget> {
       title: 'Gym Tracker',
       theme: AppTheme.light,
       home: LoginScreen(),
-      debugShowCheckedModeBanner: true,
+      debugShowCheckedModeBanner: false,
     );
   }
 }

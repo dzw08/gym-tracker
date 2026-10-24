@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gym_tracker/screens/account_screen.dart';
+import 'package:gym_tracker/screens/active_screen.dart';
 import 'package:gym_tracker/screens/exercises_screen.dart';
 import 'package:gym_tracker/screens/workouts_screen.dart';
 
@@ -18,8 +19,15 @@ class _HomeScreenState extends State<HomeScreen> {
   final _appBarPadding = const EdgeInsets.only(top: 15);
 
   void _startEmptyWorkout() {
-    //TODO: navigate to the active workout screen.
+    final startTime = DateTime.now();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => ActiveScreen(startTime: startTime),
+      ),
+    );
   }
+
   @override
   Widget build(BuildContext context) {
     final List<String> pageTitles = [
