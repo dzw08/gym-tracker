@@ -25,7 +25,7 @@ class TemplateCard extends StatelessWidget {
       color: theme.colorScheme.surfaceContainer,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(10),
         side: const BorderSide(color: Palette.bgDark),
       ),
       child: Padding(
@@ -33,10 +33,17 @@ class TemplateCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(title, style: theme.textTheme.titleSmall),
-            const SizedBox(height: 15),
+            Text(title, style: theme.textTheme.titleLarge),
+            const SizedBox(height: 10),
             Text('${exercises.length} exercises'),
-            Text('Last done: $lastDone'),
+            const SizedBox(height: 3),
+            Row(
+              children: [
+                const Icon(Icons.history, size: 15),
+                const SizedBox(width: 3),
+                Text(lastDone),
+              ],
+            ),
           ],
         ),
       ),

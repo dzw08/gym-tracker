@@ -32,7 +32,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: LoginScreen()));
 
     await tester.enterText(usernameInput(), 'dani');
-    await tester.enterText(passwordInput(), 'hunter2');
+    await tester.enterText(passwordInput(), 'ababababa');
 
     expect(
       tester.widget<TextFormField>(usernameInput()).controller?.text,

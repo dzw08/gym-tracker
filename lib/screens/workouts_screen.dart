@@ -4,7 +4,7 @@ import 'package:gym_tracker/widgets/template_card.dart';
 class WorkoutsScreen extends StatelessWidget {
   const new({super.key});
 
-  final int itemCount = 10;
+  final int itemCount = 4;
   @override
   Widget build(BuildContext context) {
     return CustomScrollView(
@@ -68,7 +68,7 @@ class WorkoutsScreen extends StatelessWidget {
         SliverToBoxAdapter(
           child: ListTile(
             title: Text(
-              'My templates ($itemCount)',
+              itemCount > 0 ? 'My templates ($itemCount)' : 'My templates',
               style: Theme.of(context).textTheme.headlineSmall,
             ),
           ),

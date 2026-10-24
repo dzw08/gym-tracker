@@ -77,6 +77,12 @@ class AppTheme {
           color: Palette.accentDarkest,
           fontVariations: [FontVariation('wght', 600)],
         ),
+        titleLarge: TextStyle(
+          fontFamily: bodyFont,
+          fontSize: 25,
+          color: Palette.text,
+          fontVariations: [FontVariation('wght', 750)],
+        ),
       ),
     );
   }
