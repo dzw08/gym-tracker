@@ -59,12 +59,6 @@ class WorkoutsScreen extends StatelessWidget {
             ),
           ),
         ),
-        SliverList.builder(
-          itemCount: 0, //TODO: replace with an actual count
-          itemBuilder: (BuildContext context, int index) {
-            return Placeholder();
-          },
-        ),
         SliverToBoxAdapter(
           child: ListTile(
             title: Text(
@@ -79,39 +73,43 @@ class WorkoutsScreen extends StatelessWidget {
           itemBuilder: (BuildContext context, int rowIndex) {
             final firstIndex = rowIndex * 2;
 
-            return Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 700),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TemplateCard(
+                      title: 'Push ${firstIndex + 1}',
+                      exercises: ["1", "2", "3"],
+                      lastDone: "Never",
+                    ),
                   ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: TemplateCard(
-                          title: 'Push ${firstIndex + 1}',
-                          exercises: ["1", "2", "3"],
-                          lastDone: "Never",
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: firstIndex + 1 < itemCount
-                            ? TemplateCard(
-                                title: 'Push ${firstIndex + 2}',
-                                exercises: ["1", "2", "3"],
-                                lastDone: "Never",
-                              )
-                            : const SizedBox.shrink(),
-                      ),
-                    ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: firstIndex + 1 < itemCount
+                        ? TemplateCard(
+                            title: 'Push ${firstIndex + 2}',
+                            exercises: ["1", "2", "3"],
+                            lastDone: "Never",
+                          )
+                        : const SizedBox.shrink(),
                   ),
-                ),
+                ],
               ),
             );
           },
+        ),
+        SliverToBoxAdapter(
+          child: ListTile(
+            title: Text(
+              "Example templates",
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
+          ),
+        ),
+        SliverList.builder(
+          itemCount: 1,
+          itemBuilder: (BuildContext context, int itemCount) => Placeholder(),
         ),
       ],
     );

@@ -42,7 +42,9 @@ class _ActiveScreenState extends State<ActiveScreen> {
             child: Padding(
               padding: const EdgeInsets.only(right: 15),
               child: Text(
-                "$hours:$minutes:$seconds",
+                elapsed.inHours > 0
+                    ? "$hours:$minutes:$seconds"
+                    : "$minutes:$seconds",
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.tertiary,
                   fontVariations: [FontVariation('wght', 900)],

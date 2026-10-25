@@ -1,5 +1,5 @@
 name: gym_tracker
-description: "A new Flutter project."
+description: "A Flutter app that tracks gym progress"
 publish_to: 'none'
 version: 0.1.0+1
 
@@ -22,12 +22,10 @@ flutter:
   fonts:
     - family: PlusJakartaSans
       fonts:
-          # font weight adjusted with fontVariations and the 'wght' (200-800 range) axis
         - asset: assets/fonts/PlusJakartaSans-Variable.ttf
         - asset: assets/fonts/PlusJakartaSans-Italic-Variable.ttf
           style: italic
 
     - family: Fraunces
       fonts:
-          # font weight, wonky adjusted with fontVariation
         - asset: assets/fonts/Fraunces-Variable.ttf
