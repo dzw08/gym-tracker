@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ), //information about logged in user
       Placeholder(), //eventually the history page
       WorkoutsScreen(), //new workout (i.e. home screen)
-      ExercisesScreen(), //exercises
+      ExercisesScreen(username: widget.username), //exercises
       Placeholder(), //trends/graphs
     ];
     return Scaffold(

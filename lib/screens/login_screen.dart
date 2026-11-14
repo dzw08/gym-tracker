@@ -83,10 +83,10 @@ class _LoginScreenState extends State<LoginScreen> {
         ).showSnackBar(const SnackBar(content: Text('Invalid credentials.')));
         setState(() => errorMessage = 'Invalid credentials!');
       }
-    } on PostgrestException catch (e) {
+    } on PostgrestException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(e.message)));
+            .showSnackBar(SnackBar(content: Text(error.message)));
         setState(() => errorMessage = "Error.");
       }
     } finally {

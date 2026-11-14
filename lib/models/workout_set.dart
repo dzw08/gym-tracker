@@ -4,4 +4,5 @@ class WorkoutSet {
   double weight;
   int reps;
   double? rpe;
+  double get max => weight * (1 + (reps / 30));
 }

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:gym_tracker/models/exercise.dart';
+import 'package:gym_tracker/repositories/exercise_repository.dart';
 import 'package:gym_tracker/widgets/exercise_card.dart';
 
 class ExercisesScreen extends StatefulWidget {
-  const new({super.key});
+  const new({super.key, required this.username, this.repository});
+
+  final String username;
+  final ExerciseRepository? repository;
 
   @override
   State<ExercisesScreen> createState() => _ExercisesScreenState();
@@ -11,9 +15,40 @@ class ExercisesScreen extends StatefulWidget {
 
 class _ExercisesScreenState extends State<ExercisesScreen> {
   final List<Exercise> _exercises = [];
-  int _nextExerciseId = 1;
+  late final ExerciseRepository _repository;
+  bool _isLoading = true;
+  String? _loadError;
 
-  Future<void> _createExercise() async {
+  @override
+  void initState() {
+    super.initState();
+    _repository =
+        widget.repository ?? LocalExerciseRepository(username: widget.username);
+    _loadExercises();
+  }
+
+  Future<void> _loadExercises() async {
+    try {
+      final items = await _repository.fetchAll();
+      if (!mounted) return;
+
+      setState(() {
+        _exercises
+          ..clear()
+          ..addAll(items);
+        _isLoading = false;
+        _loadError = null;
+      });
+    } catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _loadError = error.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> createExercise() async {
     final formKey = GlobalKey<FormState>();
     var name = '';
     var description = '';
@@ -50,10 +85,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
               ),
               TextFormField(
                 autofocus: false,
-                decoration: const InputDecoration(
-                  labelText: "Description",
-                  hintText: "Chest-focused compound exercise",
-                ),
+                decoration: const InputDecoration(labelText: "Description"),
                 onChanged: (value) => description = value.trim(),
               ),
             ],
@@ -65,12 +97,20 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
             child: const Text("Cancel"),
           ),
           FilledButton(
-            onPressed: () {
-              if (formKey.currentState!.validate()) {
-                Navigator.pop(dialogContext, [name, description]);
-              }
-            },
-            child: const Text("Create"),
+            onPressed: _isLoading
+                ? null
+                : () {
+                    if (formKey.currentState!.validate()) {
+                      Navigator.pop(dialogContext, [name, description]);
+                    }
+                  },
+            child: _isLoading
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text("Create"),
           ),
         ],
       ),
@@ -81,14 +121,28 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     final exerciseName = result[0];
     final exerciseDescription = result[1];
 
-    setState(() {
-      _exercises.add(
-        Exercise(
+    setState(() async {
+      try {
+        final exercise = await _repository.create(
           name: exerciseName,
-          exerciseId: _nextExerciseId++,
           description: exerciseDescription,
-        ),
-      );
+        );
+        if (!mounted) return;
+
+        setState(() {
+          _exercises.add(exercise);
+        });
+      } catch (error) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "An error occurred saving the exercise. Please try again.",
+            ),
+          ),
+        );
+      }
     });
   }
 
@@ -114,7 +168,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
               Padding(
                 padding: EdgeInsets.only(right: 15),
                 child: FilledButton(
-                  onPressed: _createExercise,
+                  onPressed: createExercise,
                   style: ButtonStyle(
                     backgroundColor: WidgetStateColor.fromMap({
                       WidgetState.any: Theme.of(context).colorScheme.secondary,
@@ -141,16 +195,18 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
           ),
           const SizedBox(height: 32),
           if (_exercises.isEmpty)
-            Column(
-              children: [
-                Text("No exercises yet."),
-                const SizedBox(height: 8),
-                IconButton(
-                  icon: Icon(Icons.add),
-                  tooltip: "Add exercise",
-                  onPressed: () {},
-                ),
-              ],
+            Center(
+              child: Column(
+                children: [
+                  Text("No exercises yet."),
+                  const SizedBox(height: 8),
+                  IconButton(
+                    icon: Icon(Icons.add),
+                    tooltip: "Add exercise",
+                    onPressed: createExercise,
+                  ),
+                ],
+              ),
             ),
           ..._exercises.map(
             (exercise) => ExerciseCard(

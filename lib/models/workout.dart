@@ -11,3 +11,5 @@ class Workout {
     exercises.add(exercise);
   }
 }
+
+class WorkoutTemplate {}

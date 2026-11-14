@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:gym_tracker/models/workout.dart';
 
 class ActiveScreen extends StatefulWidget {
-  const new({super.key, required this.startTime});
+  const new({super.key, required this.startTime, this.template});
 
   final DateTime startTime;
+  final WorkoutTemplate? template;
   @override
   State<ActiveScreen> createState() => _ActiveScreenState();
 }
@@ -33,10 +35,14 @@ class _ActiveScreenState extends State<ActiveScreen> {
     final hours = elapsed.inHours.toString().padLeft(2, '0');
     final minutes = (elapsed.inMinutes % 60).toString().padLeft(2, '0');
     final seconds = (elapsed.inSeconds % 60).toString().padLeft(2, '0');
+    final Workout workout = Workout(
+      name: "New Workout",
+      date: widget.startTime,
+    );
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Active Workout'),
+        title: Text(workout.name),
         actions: [
           Center(
             child: Padding(
@@ -47,6 +53,7 @@ class _ActiveScreenState extends State<ActiveScreen> {
                     : "$minutes:$seconds",
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.tertiary,
+                  fontFamily: 'SpaceMono',
                   fontVariations: [FontVariation('wght', 900)],
                 ),
               ),
