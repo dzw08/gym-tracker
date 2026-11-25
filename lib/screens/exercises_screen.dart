@@ -2,6 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:gym_tracker/models/exercise.dart';
 import 'package:gym_tracker/repositories/exercise_repository.dart';
 import 'package:gym_tracker/widgets/exercise_card.dart';
+import 'package:gym_tracker/widgets/exercise_dialog.dart';
+
+/*
+**************************************
+  SCREEN THAT DISPLAYS EXERCISES
+**************************************
+*/
 
 class ExercisesScreen extends StatefulWidget {
   const new({super.key, required this.username, this.repository});
@@ -13,6 +20,7 @@ class ExercisesScreen extends StatefulWidget {
   State<ExercisesScreen> createState() => _ExercisesScreenState();
 }
 
+// Manages the state of the exercise screen, i.e. allows dynamic content.
 class _ExercisesScreenState extends State<ExercisesScreen> {
   final List<Exercise> _exercises = [];
   late final ExerciseRepository _repository;
@@ -22,11 +30,13 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
   @override
   void initState() {
     super.initState();
+    // Initialise the persistent storage from /lib/repositories.
     _repository =
         widget.repository ?? LocalExerciseRepository(username: widget.username);
     _loadExercises();
   }
 
+  // Function to load existing locally-stored user exercises.
   Future<void> _loadExercises() async {
     try {
       final items = await _repository.fetchAll();
@@ -45,106 +55,65 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
         _loadError = error.toString();
         _isLoading = false;
       });
+      showDialog(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text("Error."),
+          content: Text(
+            "There was an error loading your exercises: $_loadError",
+          ),
+        ),
+      );
     }
   }
 
+  // Function that adds a new user-created exercise to the loaded repo.
   Future<void> createExercise() async {
-    final formKey = GlobalKey<FormState>();
-    var name = '';
-    var description = '';
+    if (_isLoading) return;
 
-    final result = await showDialog<List<String>>(
+    final result = await showDialog<ExerciseDialogResult>(
       context: context,
-      builder: (dialogContext) => AlertDialog(
-        title: const Text("Create exercise"),
-        content: Form(
-          key: formKey,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextFormField(
-                autofocus: true,
-                decoration: const InputDecoration(
-                  labelText: "Exercise name *",
-                  hintText: "e.g. Bench Press",
-                ),
-                onChanged: (value) => name = value.trim(),
-                validator: (value) {
-                  final trimmed = value?.trim() ?? '';
-                  if (trimmed.isEmpty) {
-                    return "Enter an exercise name.";
-                  }
-
-                  final exists = _exercises.any(
-                    (exercise) =>
-                        exercise.name.toLowerCase() == trimmed.toLowerCase(),
-                  );
-
-                  return exists ? "This exercise already exists." : null;
-                },
-              ),
-              TextFormField(
-                autofocus: false,
-                decoration: const InputDecoration(labelText: "Description"),
-                onChanged: (value) => description = value.trim(),
-              ),
-            ],
-          ),
+      builder: (_) => ExerciseDialog(
+        isNameTaken: (name) => _exercises.any(
+          (exercise) => exercise.name.toLowerCase() == name.toLowerCase(),
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogContext),
-            child: const Text("Cancel"),
-          ),
-          FilledButton(
-            onPressed: _isLoading
-                ? null
-                : () {
-                    if (formKey.currentState!.validate()) {
-                      Navigator.pop(dialogContext, [name, description]);
-                    }
-                  },
-            child: _isLoading
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Text("Create"),
-          ),
-        ],
       ),
     );
 
     if (!mounted || result == null) return;
 
-    final exerciseName = result[0];
-    final exerciseDescription = result[1];
+    try {
+      final exercise = await _repository.create(
+        name: result.name,
+        description: result.description,
+        iconKey: result.iconKey,
+      );
+      if (!mounted) return;
 
-    setState(() async {
-      try {
-        final exercise = await _repository.create(
-          name: exerciseName,
-          description: exerciseDescription,
-        );
-        if (!mounted) return;
+      setState(() {
+        _exercises.add(exercise);
+      });
+    } catch (error) {
+      if (!mounted) return;
 
-        setState(() {
-          _exercises.add(exercise);
-        });
-      } catch (error) {
-        if (!mounted) return;
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              "An error occurred saving the exercise. Please try again.",
-            ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "An error occurred saving the exercise. Please try again.",
           ),
-        );
-      }
-    });
+        ),
+      );
+    }
   }
+
+  IconData _iconFor(String iconKey) => switch (iconKey) {
+    'bodyweight' => Icons.accessibility,
+    'dynamic' => Icons.sports_gymnastics,
+    'running' => Icons.directions_run,
+    'cycling' => Icons.directions_bike,
+    'stretching' => Icons.self_improvement,
+    _ => Icons.fitness_center,
+  };
 
   @override
   Widget build(BuildContext context) {
@@ -210,7 +179,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
             ),
           ..._exercises.map(
             (exercise) => ExerciseCard(
-              icon: const Icon(Icons.fitness_center),
+              icon: Icon(_iconFor(exercise.iconKey)),
               name: exercise.name,
               description: exercise.description,
             ),

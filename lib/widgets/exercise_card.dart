@@ -14,6 +14,9 @@ class ExerciseCard extends StatelessWidget {
   final String name;
   final String? description;
 
+  void onDelete() {}
+  void onEdit() {}
+
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -39,7 +42,21 @@ class ExerciseCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                 ),
-                IconButton(icon: Icon(Icons.more_horiz), onPressed: () {}),
+                PopupMenuButton<String>(
+                  icon: Icon(Icons.more_horiz),
+                  tooltip: "Exercise options",
+                  onSelected: (action) {
+                    if (action == 'delete') onDelete();
+                    if (action == 'edit') onEdit();
+                  },
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: Text("Delete exercise"),
+                    ),
+                    PopupMenuItem(value: 'edit', child: Text("Edit exercise")),
+                  ],
+                ),
               ],
             ),
             Text(description ?? ''),

@@ -6,12 +6,14 @@ class Exercise {
     required this.exerciseId,
     this.description = '',
     DateTime? createdAt,
+    this.iconKey = 'strength',
   }) : createdAt = createdAt ?? DateTime.now();
 
   final String name;
   final int exerciseId;
   final String description;
   final DateTime createdAt;
+  final String iconKey;
   final List<WorkoutSet> history = [];
   WorkoutSet best = WorkoutSet(reps: 0, weight: 0, rpe: 0);
 
@@ -20,6 +22,7 @@ class Exercise {
     name: json['name'] as String,
     description: json['description'] as String? ?? '',
     createdAt: DateTime.parse(json['createdAt'] as String),
+    iconKey: json['icon'] as String? ?? 'strength',
   );
 
   Map<String, dynamic> toJson() => {
@@ -27,6 +30,7 @@ class Exercise {
     'name': name,
     'description': description,
     'createdAt': createdAt.toIso8601String(),
+    'icon': iconKey,
   };
 
   void addHistory(WorkoutSet set) {

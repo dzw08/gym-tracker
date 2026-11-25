@@ -5,7 +5,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 abstract class ExerciseRepository {
   Future<List<Exercise>> fetchAll();
-  Future<Exercise> create({required String name, required String description});
+  Future<Exercise> create({
+    required String name,
+    required String description,
+    required String iconKey,
+  });
 }
 
 // Repository for local storage, will implement a Supabase version later
@@ -54,6 +58,7 @@ class LocalExerciseRepository implements ExerciseRepository {
   Future<Exercise> create({
     required String name,
     required String description,
+    required String iconKey,
   }) async {
     final exercises = await fetchAll();
     final trimmedName = name.trim();
@@ -83,6 +88,7 @@ class LocalExerciseRepository implements ExerciseRepository {
       name: trimmedName,
       description: description.trim(),
       createdAt: now,
+      iconKey: iconKey,
     );
 
     exercises.add(exercise);

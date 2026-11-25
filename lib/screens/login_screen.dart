@@ -19,6 +19,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   String errorMessage = '';
 
+  // Removes the username and password states once finished
   @override
   void dispose() {
     _usernameController
@@ -30,6 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  // On init, prepare the listeners for username and password, and clear any past error message
   @override
   void initState() {
     super.initState();
@@ -46,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
 
+    // Validate the username and password, returning if the fields are empty, or if the app is loading (querying supabase)
     if (username.isEmpty || password.isEmpty || _isLoading) return;
 
     //For testing, and to avoid the Supabase
@@ -62,12 +65,14 @@ class _LoginScreenState extends State<LoginScreen> {
     final supabase = Supabase.instance.client;
     setState(() => _isLoading = true);
     try {
+      // SQL query to check against users table
       final row = await supabase
           .from('users')
           .select('id, username')
           .eq('username', username)
           .eq('password', password)
           .maybeSingle();
+      // Prevents anything from happening if the state is not actually mounted to the screen
       if (!mounted) return;
       if (row != null) {
         //Login succeed.
@@ -78,11 +83,13 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else if (mounted) {
+        // Return a snackbar error message as well as display error message under the password field
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(const SnackBar(content: Text('Invalid credentials.')));
         setState(() => errorMessage = 'Invalid credentials!');
       }
+      // If there is a postgrest error, display it on the screen
     } on PostgrestException catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context)
@@ -94,6 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // UI build
   @override
   Widget build(BuildContext context) {
     return Scaffold(
