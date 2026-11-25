@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:gym_tracker/models/exercise.dart';
 import 'package:gym_tracker/repositories/exercise_repository.dart';
@@ -65,6 +67,11 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
         ),
       );
     }
+  }
+
+  // Function to save edits to an existing exercise
+  Future<void> _saveExerciseEdit(int id, ExerciseDialogResult result) async {
+    stdout.writeln("todo");
   }
 
   // Function that adds a new user-created exercise to the loaded repo.
@@ -180,8 +187,14 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
           ..._exercises.map(
             (exercise) => ExerciseCard(
               icon: Icon(_iconFor(exercise.iconKey)),
-              name: exercise.name,
-              description: exercise.description,
+              exercise: exercise,
+              isNameTaken: (name) => _exercises.any(
+                (other) =>
+                    other.exerciseId != exercise.exerciseId &&
+                    other.name.toLowerCase() == name.toLowerCase(),
+              ),
+              onSaveEdit: (result) =>
+                  _saveExerciseEdit(exercise.exerciseId, result),
             ),
           ),
         ],
