@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:gym_tracker/models/exercise.dart';
 import 'package:gym_tracker/repositories/exercise_repository.dart';
+import 'package:gym_tracker/widgets/confirmation_dialog.dart';
 import 'package:gym_tracker/widgets/exercise_card.dart';
 import 'package:gym_tracker/widgets/exercise_dialog.dart';
 
@@ -69,9 +68,57 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
     }
   }
 
+  // Function to save deletions on exercises
+  Future<void> _saveExerciseDelete(ConfirmationDialogResult result) async {
+    final Exercise exerciseDelete = result.exercise;
+    try {
+      if (!mounted) return;
+
+      await _repository.delete(exerciseId: exerciseDelete.exerciseId);
+      if (!mounted) return;
+      final index = _exercises.indexWhere(
+        (item) => item.exerciseId == exerciseDelete.exerciseId,
+      );
+      if (index == -1) return;
+
+      setState(() {
+        _exercises.removeAt(index);
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      final message = e.toString();
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+    }
+  }
+
   // Function to save edits to an existing exercise
   Future<void> _saveExerciseEdit(int id, ExerciseDialogResult result) async {
-    stdout.writeln("todo");
+    try {
+      final updated = await _repository.update(
+        exerciseId: id,
+        name: result.name,
+        description: result.description,
+        iconKey: result.iconKey,
+      );
+      if (!mounted) return;
+
+      final index = _exercises.indexWhere(
+        (exercise) => exercise.exerciseId == id,
+      );
+      if (index == -1) return;
+
+      setState(() {
+        _exercises[index] = updated;
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      final message = e.toString();
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(message)));
+    }
   }
 
   // Function that adds a new user-created exercise to the loaded repo.
@@ -195,6 +242,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
               ),
               onSaveEdit: (result) =>
                   _saveExerciseEdit(exercise.exerciseId, result),
+              onSaveDelete: (result) => _saveExerciseDelete(result),
             ),
           ),
         ],

@@ -1,8 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:gym_tracker/models/exercise.dart';
 import 'package:gym_tracker/theme/app_theme.dart';
+import 'package:gym_tracker/widgets/confirmation_dialog.dart';
 import 'package:gym_tracker/widgets/exercise_dialog.dart';
 
 class ExerciseCard extends StatelessWidget {
@@ -12,6 +11,7 @@ class ExerciseCard extends StatelessWidget {
     required this.exercise,
     required this.isNameTaken,
     required this.onSaveEdit,
+    required this.onSaveDelete,
   });
 
   final Icon icon;
@@ -20,9 +20,17 @@ class ExerciseCard extends StatelessWidget {
   final bool Function(String name) isNameTaken;
   // When the user clicks 'save'
   final Future<void> Function(ExerciseDialogResult result) onSaveEdit;
+  // When the user clicks 'confirm delete'
+  final Future<void> Function(ConfirmationDialogResult result) onSaveDelete;
 
-  void onDelete() {
-    stdout.writeln("todo");
+  Future<ConfirmationDialogResult?> onDelete(BuildContext context) async {
+    final result = await showDialog<ConfirmationDialogResult>(
+      context: context,
+      builder: (_) => ConfirmationDialog(exercise: exercise),
+    );
+
+    if (result == null || !result.confirmed) return null;
+    return result;
   }
 
   Future<ExerciseDialogResult?> onEdit(BuildContext context) async {
@@ -67,8 +75,11 @@ class ExerciseCard extends StatelessWidget {
                   icon: Icon(Icons.more_horiz),
                   tooltip: "Exercise options",
                   onSelected: (action) async {
-                    if (action == 'delete') onDelete();
-                    if (action == 'edit') {
+                    if (action == 'delete') {
+                      final deleteResult = await onDelete(context);
+                      if (deleteResult == null) return;
+                      await onSaveDelete(deleteResult);
+                    } else if (action == 'edit') {
                       final result = await onEdit(context);
                       if (result == null) return; // Cancelled
                       await onSaveEdit(result);

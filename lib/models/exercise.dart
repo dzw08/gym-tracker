@@ -9,9 +9,9 @@ class Exercise {
     this.iconKey = 'strength',
   }) : createdAt = createdAt ?? DateTime.now();
 
-  final String name;
+  String name;
   final int exerciseId;
-  final String description;
+  String description;
   final DateTime createdAt;
   final String iconKey;
   final List<WorkoutSet> history = [];

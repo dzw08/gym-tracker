@@ -10,6 +10,13 @@ abstract class ExerciseRepository {
     required String description,
     required String iconKey,
   });
+  Future<Exercise> update({
+    required int exerciseId,
+    required String name,
+    required String description,
+    required String iconKey,
+  });
+  Future<void> delete({required int exerciseId});
 }
 
 // Repository for local storage, will implement a Supabase version later
@@ -106,5 +113,68 @@ class LocalExerciseRepository implements ExerciseRepository {
     }
 
     return exercise;
+  }
+
+  @override
+  Future<Exercise> update({
+    required int exerciseId,
+    required String name,
+    required String description,
+    required String iconKey,
+  }) async {
+    final exercises = await fetchAll();
+    final index = exercises.indexWhere((item) => item.exerciseId == exerciseId);
+    if (index == -1) {
+      throw StateError("Exercise not found.");
+    }
+
+    final trimmedName = name.trim();
+    if (trimmedName.isEmpty) {
+      throw ArgumentError("Enter an exercise name.");
+    }
+    final nameTaken = exercises.any(
+      (item) =>
+          item.exerciseId != exerciseId &&
+          item.name.toLowerCase() == trimmedName.toLowerCase(),
+    );
+    if (nameTaken) {
+      throw ArgumentError("This exercise already exists.");
+    }
+
+    final updated = Exercise(
+      exerciseId: exerciseId,
+      createdAt: exercises[index].createdAt,
+      name: trimmedName,
+      description: description.trim(),
+      iconKey: iconKey,
+    );
+
+    exercises[index] = updated;
+    await _saveAll(exercises);
+    return updated;
+  }
+
+  Future<void> _saveAll(List<Exercise> exercises) async {
+    final json = jsonEncode({
+      'version': 1,
+      'exercises': exercises.map((item) => item.toJson()).toList(),
+    });
+
+    final prefs = await _prefs();
+    final saved = await prefs.setString(_key, json);
+    if (!saved) {
+      throw StateError("Could not save the exercises.");
+    }
+  }
+
+  @override
+  Future<void> delete({required int exerciseId}) async {
+    final exercises = await fetchAll();
+    final index = exercises.indexWhere((item) => item.exerciseId == exerciseId);
+    if (index == -1) {
+      throw StateError("Exercise not found.");
+    }
+    exercises.removeAt(index);
+    await _saveAll(exercises);
   }
 }
