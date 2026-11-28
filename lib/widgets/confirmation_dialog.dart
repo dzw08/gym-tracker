@@ -37,3 +37,36 @@ class _ConfirmationDialogState extends State<ConfirmationDialog> {
     );
   }
 }
+
+class StandardDialog extends StatefulWidget {
+  const new({super.key, required this.prompt, required this.confirm});
+
+  final String prompt;
+  final String confirm;
+
+  @override
+  State<StandardDialog> createState() => _StandardDialogState();
+}
+
+class _StandardDialogState extends State<StandardDialog> {
+  void _close(bool confirmed) {
+    Navigator.of(context).pop<bool>((confirmed));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Text("Confirm"),
+      scrollable: false,
+      content: Text(widget.prompt),
+      actions: [
+        TextButton(onPressed: () => _close(false), child: Text("Cancel")),
+        FilledButton.icon(
+          onPressed: () => _close(true),
+          icon: const Icon(Icons.done_all),
+          label: Text(widget.confirm),
+        ),
+      ],
+    );
+  }
+}

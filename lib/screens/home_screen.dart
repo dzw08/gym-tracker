@@ -23,7 +23,8 @@ class _HomeScreenState extends State<HomeScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) => ActiveScreen(startTime: startTime),
+        builder: (BuildContext context) =>
+            ActiveScreen(startTime: startTime, username: widget.username),
       ),
     );
   }
@@ -92,7 +93,7 @@ class _HomeScreenState extends State<HomeScreen> {
             label: 'Account',
           ),
           NavigationDestination(icon: Icon(Icons.history), label: 'History'),
-          NavigationDestination(icon: Icon(Icons.add), label: 'New Workout'),
+          NavigationDestination(icon: Icon(Icons.add), label: 'New'),
           NavigationDestination(
             icon: Icon(Icons.fitness_center_rounded),
             label: 'Exercises',
