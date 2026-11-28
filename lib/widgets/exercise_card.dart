@@ -9,6 +9,7 @@ class ExerciseCard extends StatelessWidget {
     super.key,
     required this.icon,
     required this.exercise,
+    required this.isSaving,
     required this.isNameTaken,
     required this.onSaveEdit,
     required this.onSaveDelete,
@@ -16,6 +17,7 @@ class ExerciseCard extends StatelessWidget {
 
   final Icon icon;
   final Exercise exercise;
+  final bool isSaving;
   // Checks if an exercise already exists with that name
   final bool Function(String name) isNameTaken;
   // When the user clicks 'save'
@@ -72,7 +74,10 @@ class ExerciseCard extends StatelessWidget {
                   ),
                 ),
                 PopupMenuButton<String>(
-                  icon: Icon(Icons.more_horiz),
+                  enabled: !isSaving,
+                  icon: isSaving
+                      ? const Icon(Icons.disabled_by_default)
+                      : const Icon(Icons.more_horiz),
                   tooltip: "Exercise options",
                   onSelected: (action) async {
                     if (action == 'delete') {

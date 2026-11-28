@@ -27,6 +27,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
   late final ExerciseRepository _repository;
   bool _isLoading = true;
   String? _loadError;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -70,10 +71,11 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
 
   // Function to save deletions on exercises
   Future<void> _saveExerciseDelete(ConfirmationDialogResult result) async {
-    final Exercise exerciseDelete = result.exercise;
-    try {
-      if (!mounted) return;
+    if (!mounted || _isSaving) return;
 
+    final Exercise exerciseDelete = result.exercise;
+    setState(() => _isSaving = true);
+    try {
       await _repository.delete(exerciseId: exerciseDelete.exerciseId);
       if (!mounted) return;
       final index = _exercises.indexWhere(
@@ -90,11 +92,18 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
       final message = e.toString();
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
 
   // Function to save edits to an existing exercise
   Future<void> _saveExerciseEdit(int id, ExerciseDialogResult result) async {
+    if (!mounted || _isSaving) return;
+
+    setState(() => _isSaving = true);
     try {
       final updated = await _repository.update(
         exerciseId: id,
@@ -118,12 +127,16 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
       final message = e.toString();
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
 
   // Function that adds a new user-created exercise to the loaded repo.
   Future<void> createExercise() async {
-    if (_isLoading) return;
+    if (_isLoading || _isSaving) return;
 
     final result = await showDialog<ExerciseDialogResult>(
       context: context,
@@ -134,7 +147,8 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
       ),
     );
 
-    if (!mounted || result == null) return;
+    if (!mounted || result == null || _isSaving) return;
+    setState(() => _isSaving = true);
 
     try {
       final exercise = await _repository.create(
@@ -157,6 +171,10 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
           ),
         ),
       );
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
 
@@ -191,7 +209,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
               Padding(
                 padding: EdgeInsets.only(right: 15),
                 child: FilledButton(
-                  onPressed: createExercise,
+                  onPressed: _isSaving ? null : createExercise,
                   style: ButtonStyle(
                     backgroundColor: WidgetStateColor.fromMap({
                       WidgetState.any: Theme.of(context).colorScheme.secondary,
@@ -199,17 +217,24 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.add,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
-                      Text(
-                        "Exercise",
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.onSurface,
-                          fontVariations: [FontVariation("wght", 600)],
-                        ),
-                      ),
+                      _isSaving
+                          ? const SizedBox.square(
+                              dimension: 24,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Icon(
+                              Icons.add,
+                              color: Theme.of(context).colorScheme.onSurface,
+                            ),
+                      _isSaving
+                          ? Text("")
+                          : Text(
+                              "Exercise",
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onSurface,
+                                fontVariations: [FontVariation("wght", 600)],
+                              ),
+                            ),
                     ],
                   ),
                 ),
@@ -235,6 +260,7 @@ class _ExercisesScreenState extends State<ExercisesScreen> {
             (exercise) => ExerciseCard(
               icon: Icon(_iconFor(exercise.iconKey)),
               exercise: exercise,
+              isSaving: _isSaving,
               isNameTaken: (name) => _exercises.any(
                 (other) =>
                     other.exerciseId != exercise.exerciseId &&
